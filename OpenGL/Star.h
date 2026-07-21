@@ -4,7 +4,6 @@
 
 struct Star : public Drawable {
 
-
     Star() = default;
 
     Star(float x, float y, float z, float r, float g, float b, float radius)

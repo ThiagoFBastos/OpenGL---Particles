@@ -122,7 +122,7 @@ int main() {
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
 
-	float startTime = static_cast<float>(glfwGetTime()) - 3.0f;
+	double startTime = glfwGetTime() - 3.0;
 
 	std::vector<Galaxy> galaxies;
     std::vector<Drawable> drawables;
@@ -155,6 +155,11 @@ int main() {
     };
 
 
+    auto uniform = [&rng](float min, float max) {
+        return std::uniform_real_distribution<float>(min, max)(rng);
+	};  
+
+
     float step = 2.0f / NUMBER_OF_GALAXIES;
 
     std::vector<std::pair<float, float>> xRanges, yRanges, zRanges;
@@ -174,35 +179,35 @@ int main() {
         auto [yL, yR] = yRanges[i];
         auto [zL, zR] = zRanges[i];
 
-        float x = std::uniform_real_distribution<float>(xL, xR)(rng);
-        float y = std::uniform_real_distribution<float>(yL, yR)(rng);
-        float z = std::uniform_real_distribution<float>(zL, zR)(rng);
+        float x = uniform(xL, xR);
+        float y = uniform(yL, yR);
+        float z = uniform(zL, zR);
 
         galaxies.emplace_back(x, y, z);
 
         auto& galaxy = galaxies.back();
 
         for (int j = 0; j < NUMBER_OF_STARS_PER_GALAXY; ++j) {
-            float x = std::uniform_real_distribution<float>(-1.0f, 1.0f)(rng);
-            float y = std::uniform_real_distribution<float>(-1.0f, 1.0f)(rng);
-            float z = std::uniform_real_distribution<float>(-1.0f, 1.0f)(rng);
-            float r = std::uniform_real_distribution<float>(0.0f, 1.0f)(rng);
-            float g = std::uniform_real_distribution<float>(0.0f, 1.0f)(rng);
-            float b = std::uniform_real_distribution<float>(0.0f, 1.0f)(rng);
-            float pointSize = std::uniform_real_distribution<float>(0.5f, 2.5f)(rng);
+            float x = uniform(-1.0f, 1.0f);
+            float y = uniform(-1.0f, 1.0f);
+            float z = uniform(-1.0f, 1.0f);
+            float r = uniform(0.0f, 1.0f);
+            float g = uniform(0.0f, 1.0f);
+            float b = uniform(0.0f, 1.0f);
+            float pointSize = uniform(0.5f, 2.5f);
 
             Star star(x, y, z, r, g, b, pointSize);
 
             galaxy.addStar(star);
 
             for (int k = 0; k < NUMBER_OF_PLANETS_PER_STAR; ++k) {
-                float x = std::uniform_real_distribution<float>(-1.0f, 1.0f)(rng);
-                float y = std::uniform_real_distribution<float>(-1.0f, 1.0f)(rng);
-                float z = std::uniform_real_distribution<float>(-1.0f, 1.0f)(rng);
-                float r = std::uniform_real_distribution<float>(0.0f, 1.0f)(rng);
-                float g = std::uniform_real_distribution<float>(0.0f, 1.0f)(rng);
-                float b = std::uniform_real_distribution<float>(0.0f, 1.0f)(rng);
-                float pointSize = std::uniform_real_distribution<float>(0.3f, 1.0f)(rng);
+                float x = uniform(-1.0f, 1.0f);
+                float y = uniform(-1.0f, 1.0f);
+                float z = uniform(-1.0f, 1.0f);
+                float r = uniform(0.0f, 1.0f);
+                float g = uniform(0.0f, 1.0f);
+                float b = uniform(0.0f, 1.0f);
+                float pointSize = uniform(0.3f, 1.0f);
 
                 Planet planet(x, y, z, r, g, b, pointSize, star);
 
@@ -220,9 +225,9 @@ int main() {
 
         glBindVertexArray(VAO);
 
-		float currentTime = static_cast<float>(glfwGetTime());
+		double currentTime = glfwGetTime();
 
-       if (currentTime - startTime >= 3.0f) {
+       if (currentTime - startTime >= 3.0) {
 			startTime = currentTime;
 
             std::ranges::for_each(galaxies, [](Galaxy& galaxy) {
