@@ -1,7 +1,7 @@
 #pragma once
 
 struct Point {
-    float x, y, z;
+    float x {}, y {}, z {};
 
     Point() = default;
 

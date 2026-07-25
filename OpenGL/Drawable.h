@@ -5,7 +5,7 @@
 struct Drawable {
     Point location;
     Point color;
-    float radius;
+    float radius {};
 
     Drawable() = default;
 

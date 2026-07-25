@@ -28,9 +28,9 @@ struct Galaxy {
             std::pow(star.location.y - center.y, 2) +
             std::pow(star.location.z - center.z, 2));
 
-        star.location.x = center.x + (star.location.x - center.x) * (1.0f / distance) * 0.2;
-        star.location.y = center.y + (star.location.y - center.y) * (1.0f / distance) * 0.2;
-        star.location.z = center.z + (star.location.z - center.z) * (1.0f / distance) * 0.2;
+        star.location.x = center.x + (star.location.x - center.x) * (1.0f / distance) * 0.2f;
+        star.location.y = center.y + (star.location.y - center.y) * (1.0f / distance) * 0.2f;
+        star.location.z = center.z + (star.location.z - center.z) * (1.0f / distance) * 0.2f;
 
         stars.push_back(star);
     }
@@ -42,9 +42,9 @@ struct Galaxy {
             std::pow(planet.location.y - star.location.y, 2) +
             std::pow(planet.location.z - star.location.z, 2));
 
-        planet.location.x = star.location.x + (planet.location.x - star.location.x) * (1.0f / distance) * 0.1;
-        planet.location.y = star.location.y + (planet.location.y - star.location.y) * (1.0f / distance) * 0.1;
-        planet.location.z = star.location.z + (planet.location.z - star.location.z) * (1.0f / distance) * 0.1;
+        planet.location.x = star.location.x + (planet.location.x - star.location.x) * (1.0f / distance) * 0.1f;
+        planet.location.y = star.location.y + (planet.location.y - star.location.y) * (1.0f / distance) * 0.1f;
+        planet.location.z = star.location.z + (planet.location.z - star.location.z) * (1.0f / distance) * 0.1f;
 
         planets.push_back(planet);
     }

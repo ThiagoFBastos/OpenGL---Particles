@@ -12,9 +12,6 @@
 
 #include "Galaxy.h"
 
-constexpr int WIDTH = 800;
-constexpr int HEIGHT = 600;
-
 constexpr const char* vertexShaderSource = "#version 330 core\n"
 "layout (location = 0) in vec3 aPos;\n"
 "layout (location = 1) in vec3 aColor;\n"
@@ -32,7 +29,14 @@ constexpr const char* fragmentShaderSource = "#version 330 core\n"
 "in vec3 ourColor;\n"
 "void main()\n"
 "{\n"
-"   FragColor = vec4(ourColor, 1.0);\n"
+"    vec2 p = gl_PointCoord * 2.0 - 1.0;\n"
+"    float d = length(p);\n"
+"\n"
+"    float alpha = 1.0 - smoothstep(0.9, 1.0, d);\n"
+"\n"
+"    if (alpha <= 0.0)\n"
+"        discard;\n"
+"    FragColor = vec4(ourColor, alpha);\n"
 "}\n\0";
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
@@ -45,6 +49,9 @@ void processInput(GLFWwindow* window) {
 }
 
 int main() {
+
+    constexpr int WIDTH = 800;
+    constexpr int HEIGHT = 600;
 
     unsigned int VAO, VBO;
     int  success;
@@ -60,7 +67,7 @@ int main() {
 
     auto window = glfwCreateWindow(
         800, 600,
-        "Minha Janela",
+        "Ceu estrelado",
         nullptr,
         nullptr
     );
@@ -129,7 +136,7 @@ int main() {
 
     std::mt19937 rng(std::chrono::system_clock::now().time_since_epoch().count());
 
-    constexpr int NUMBER_OF_GALAXIES = 25;
+    constexpr int NUMBER_OF_GALAXIES = 30;
 	constexpr int NUMBER_OF_STARS_PER_GALAXY = 30;
 	constexpr int NUMBER_OF_PLANETS_PER_STAR = 150;
 
@@ -174,10 +181,10 @@ int main() {
     std::shuffle(yRanges.begin(), yRanges.end(), rng);
     std::shuffle(zRanges.begin(), zRanges.end(), rng);
 
-    for (int i = 0; i < NUMBER_OF_GALAXIES; ++i) {
-        auto [xL, xR] = xRanges[i];
-        auto [yL, yR] = yRanges[i];
-        auto [zL, zR] = zRanges[i];
+    for (const auto&& [xRange, yRange, zRange] : std::views::zip(xRanges, yRanges, zRanges)) {
+        auto [xL, xR] = xRange;
+        auto [yL, yR] = yRange;
+        auto [zL, zR] = zRange;
 
         float x = uniform(xL, xR);
         float y = uniform(yL, yR);
@@ -194,7 +201,7 @@ int main() {
             float r = uniform(0.0f, 1.0f);
             float g = uniform(0.0f, 1.0f);
             float b = uniform(0.0f, 1.0f);
-            float pointSize = uniform(0.5f, 2.5f);
+            float pointSize = uniform(0.5f, 4.5f);
 
             Star star(x, y, z, r, g, b, pointSize);
 
@@ -216,18 +223,19 @@ int main() {
         }
     }
     
+	constexpr double ROTATION_DELAY = 3.0;
 
     while (!glfwWindowShouldClose(window)) {
         processInput(window);
 
-        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+        glClearColor(0.08f, 0.04f, 0.12f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
         glBindVertexArray(VAO);
 
 		double currentTime = glfwGetTime();
 
-       if (currentTime - startTime >= 3.0) {
+       if (currentTime - startTime >= ROTATION_DELAY) {
 			startTime = currentTime;
 
             std::ranges::for_each(galaxies, [](Galaxy& galaxy) {
