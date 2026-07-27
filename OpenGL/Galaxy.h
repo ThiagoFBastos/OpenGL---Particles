@@ -4,6 +4,9 @@
 #include <cmath>
 #include <random>
 #include <chrono>
+#include <glm/glm.hpp>
+#include <glm/vec3.hpp>
+#include <glm/geometric.hpp>
 
 #include "Star.h"
 #include "Planet.h"
@@ -24,13 +27,9 @@ struct Galaxy {
     }
 
     void addStar(Star& star) {
-        float distance = std::sqrt(std::pow(star.location.x - center.x, 2) +
-            std::pow(star.location.y - center.y, 2) +
-            std::pow(star.location.z - center.z, 2));
+		auto norm = glm::normalize(star.location - center);
 
-        star.location.x = center.x + (star.location.x - center.x) * (1.0f / distance) * 0.2f;
-        star.location.y = center.y + (star.location.y - center.y) * (1.0f / distance) * 0.2f;
-        star.location.z = center.z + (star.location.z - center.z) * (1.0f / distance) * 0.2f;
+		star.location = center + norm * 0.2f;
 
         stars.push_back(star);
     }
@@ -38,13 +37,9 @@ struct Galaxy {
     void addPlanet(Planet& planet) {
 		const Star& star = planet.star;
 
-        float distance = std::sqrt(std::pow(planet.location.x - star.location.x, 2) +
-            std::pow(planet.location.y - star.location.y, 2) +
-            std::pow(planet.location.z - star.location.z, 2));
+		auto norm = glm::normalize(planet.location - star.location);
 
-        planet.location.x = star.location.x + (planet.location.x - star.location.x) * (1.0f / distance) * 0.1f;
-        planet.location.y = star.location.y + (planet.location.y - star.location.y) * (1.0f / distance) * 0.1f;
-        planet.location.z = star.location.z + (planet.location.z - star.location.z) * (1.0f / distance) * 0.1f;
+		planet.location = star.location + norm * 0.1f;
 
         planets.push_back(planet);
     }

@@ -1,14 +1,5 @@
 #pragma once
 
-struct Point {
-    float x {}, y {}, z {};
+#include <glm/vec3.hpp>
 
-    Point() = default;
-
-    Point(float x, float y, float z)
-        : x(x)
-        , y(y)
-        , z(z)
-    {
-    }
-};
+using Point = glm::vec3;
