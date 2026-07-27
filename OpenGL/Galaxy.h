@@ -15,7 +15,7 @@ struct Galaxy {
     std::vector<Star> stars;
     std::vector<Planet> planets;
     Point center;
-    float rotationSpeed = 0.01f;
+    double rotationSpeed = 1.0;
 
     Galaxy() = default;
 
@@ -23,7 +23,7 @@ struct Galaxy {
         : center(x, y, z)
     {
         std::mt19937 rng(std::chrono::system_clock::now().time_since_epoch().count());
-        rotationSpeed = std::uniform_real_distribution<float>(0.001f, 0.01f)(rng);
+        rotationSpeed = std::uniform_real_distribution<double>(1.0, 5.0)(rng);
     }
 
     void addStar(Star& star) {
@@ -44,22 +44,25 @@ struct Galaxy {
         planets.push_back(planet);
     }
 
-    void rotate() {
+    void rotate(double speed) {
+		
+		double rotationSpeed = this->rotationSpeed * speed;
+        std::mt19937 rng(std::chrono::system_clock::now().time_since_epoch().count());
 
         for (auto& planet : planets) {
-            float dx = planet.location.x - center.x;
-            float dy = planet.location.y - center.y;
+			auto delta = planet.location - center;
 
-            planet.location.x = dx * std::cos(rotationSpeed) - dy * std::sin(rotationSpeed) + center.x;
-            planet.location.y = dx * std::sin(rotationSpeed) + dy * std::cos(rotationSpeed) + center.y;
+            planet.location.x = delta.x * std::cos(glm::radians(rotationSpeed)) - delta.y * std::sin(glm::radians(rotationSpeed)) + center.x;
+            planet.location.y = delta.x * std::sin(glm::radians(rotationSpeed)) + delta.y * std::cos(glm::radians(rotationSpeed)) + center.y;
         }
 
-        for(auto& start : stars) {
-            float dx = start.location.x - center.x;
-            float dy = start.location.y - center.y;
+        for(auto& star : stars) {
+			auto delta = star.location - center;
 
-            start.location.x = dx * std::cos(rotationSpeed) - dy * std::sin(rotationSpeed) + center.x;
-            start.location.y = dx * std::sin(rotationSpeed) + dy * std::cos(rotationSpeed) + center.y;
+            star.location.x = delta.x * std::cos(glm::radians(rotationSpeed)) - delta.y * std::sin(glm::radians(rotationSpeed)) + center.x;
+            star.location.y = delta.x * std::sin(glm::radians(rotationSpeed)) + delta.y * std::cos(glm::radians(rotationSpeed)) + center.y;
+
+			star.frequency = std::uniform_real_distribution<float>(0.5f, 1.0f)(rng);
 		}
     }
 };

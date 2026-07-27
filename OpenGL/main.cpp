@@ -16,12 +16,13 @@ constexpr const char* vertexShaderSource = "#version 330 core\n"
 "layout (location = 0) in vec3 aPos;\n"
 "layout (location = 1) in vec3 aColor;\n"
 "layout (location = 2) in float aPointSize;\n"
+"layout (location = 3) in float aFrequency;\n"
 "out vec3 ourColor;\n"
 "void main()\n"
 "{\n"
 "   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
-"   gl_PointSize = aPointSize;\n"
 "   ourColor = aColor;\n"
+"   gl_PointSize = aPointSize * aFrequency;\n"
 "}\0";
 
 constexpr const char* fragmentShaderSource = "#version 330 core\n"
@@ -136,31 +137,9 @@ int main() {
 
     std::mt19937 rng(std::chrono::system_clock::now().time_since_epoch().count());
 
-    constexpr int NUMBER_OF_GALAXIES = 30;
+    constexpr int NUMBER_OF_GALAXIES = 15;
 	constexpr int NUMBER_OF_STARS_PER_GALAXY = 30;
-	constexpr int NUMBER_OF_PLANETS_PER_STAR = 150;
-
-    auto paintGalaxies = [&] {
-        drawables.clear();
-
-        std::ranges::for_each(galaxies, [&](const Galaxy& galaxy) {
-            drawables.insert(drawables.end(), galaxy.stars.begin(), galaxy.stars.end());
-            drawables.insert(drawables.end(), galaxy.planets.begin(), galaxy.planets.end());
-         });
-
-        glBindBuffer(GL_ARRAY_BUFFER, VBO);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(Drawable) * drawables.size(), drawables.data(), GL_STATIC_DRAW);
-
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)0);
-        glEnableVertexAttribArray(0);
-
-        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)(3 * sizeof(float)));
-        glEnableVertexAttribArray(1);
-
-        glVertexAttribPointer(2, 1, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)(6 * sizeof(float)));
-        glEnableVertexAttribArray(2);
-    };
-
+	constexpr int NUMBER_OF_PLANETS_PER_STAR = 300;
 
     auto uniform = [&rng](float min, float max) {
         return std::uniform_real_distribution<float>(min, max)(rng);
@@ -223,8 +202,6 @@ int main() {
         }
     }
     
-	constexpr double ROTATION_DELAY = 3.0;
-
     while (!glfwWindowShouldClose(window)) {
         processInput(window);
 
@@ -234,16 +211,33 @@ int main() {
         glBindVertexArray(VAO);
 
 		double currentTime = glfwGetTime();
+		double speed = currentTime - startTime;
+        
+        startTime = currentTime;
 
-       if (currentTime - startTime >= ROTATION_DELAY) {
-			startTime = currentTime;
+        drawables.clear();
 
-            std::ranges::for_each(galaxies, [](Galaxy& galaxy) {
-                galaxy.rotate();
-		    });
+        std::ranges::for_each(galaxies, [&](Galaxy& galaxy) {
+            galaxy.rotate(1.5 * speed);
 
-			paintGalaxies();
-        }
+            drawables.insert(drawables.end(), galaxy.stars.begin(), galaxy.stars.end());
+            drawables.insert(drawables.end(), galaxy.planets.begin(), galaxy.planets.end());
+        });
+
+        glBindBuffer(GL_ARRAY_BUFFER, VBO);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(Drawable) * drawables.size(), drawables.data(), GL_STATIC_DRAW);
+
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
+        glEnableVertexAttribArray(0);
+
+        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+        glEnableVertexAttribArray(1);
+
+        glVertexAttribPointer(2, 1, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+        glEnableVertexAttribArray(2);
+
+		glVertexAttribPointer(3, 1, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(7 * sizeof(float)));
+        glEnableVertexAttribArray(3);
 
         glUseProgram(shaderProgram);
         glDrawArrays(GL_POINTS, 0, drawables.size());
