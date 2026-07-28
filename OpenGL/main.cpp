@@ -9,6 +9,9 @@
 #include <ranges>
 #include <utility>
 #include <algorithm>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 #include "Galaxy.h"
 
@@ -18,9 +21,12 @@ constexpr const char* vertexShaderSource = "#version 330 core\n"
 "layout (location = 2) in float aPointSize;\n"
 "layout (location = 3) in float aFrequency;\n"
 "out vec3 ourColor;\n"
+"uniform mat4 model;\n"
+"uniform mat4 view;\n"
+"uniform mat4 projection;\n"
 "void main()\n"
 "{\n"
-"   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
+"   gl_Position = projection * view * model * vec4(aPos, 1.0);\n"
 "   ourColor = aColor;\n"
 "   gl_PointSize = aPointSize * aFrequency;\n"
 "}\0";
@@ -203,12 +209,25 @@ int main() {
             }
         }
     }
-    
+
+	glm::mat4 model = glm::mat4(1.0f);
+	glm::mat4 view = glm::mat4(1.0f);
+    glm::mat4 projection = glm::mat4(1.0f);
+
     while (!glfwWindowShouldClose(window)) {
         processInput(window);
 
         glClearColor(0.08f, 0.04f, 0.12f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
+
+        int modelLoc = glGetUniformLocation(shaderProgram, "model");
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+
+        int viewLoc = glGetUniformLocation(shaderProgram, "view");
+        glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
+
+        int projectionLoc = glGetUniformLocation(shaderProgram, "projection");
+        glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
 
         glBindVertexArray(VAO);
 
