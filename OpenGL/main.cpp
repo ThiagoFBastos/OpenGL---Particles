@@ -67,7 +67,7 @@ int main() {
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
     auto window = glfwCreateWindow(
-        800, 600,
+        WIDTH, HEIGHT,
         "Ceu estrelado",
         nullptr,
         nullptr
@@ -98,6 +98,7 @@ int main() {
     if (!success) {
         glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
         std::cerr << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
+        return -1;
     }
 
     auto fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
@@ -109,6 +110,7 @@ int main() {
     if (!success) {
         glGetShaderInfoLog(fragmentShader, 512, NULL, infoLog);
         std::cerr << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << std::endl;
+        return -1;
     }
 
     auto shaderProgram = glCreateProgram();
@@ -122,6 +124,7 @@ int main() {
     if (!success) {
         glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
         std::cerr << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
+        return -1;
     }
 
     glDeleteShader(vertexShader);
@@ -130,10 +133,9 @@ int main() {
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
 
-	double startTime = glfwGetTime() - 3.0;
+	double startTime = glfwGetTime();
 
 	std::vector<Galaxy> galaxies;
-    std::vector<Drawable> drawables;
 
     std::mt19937 rng(std::chrono::system_clock::now().time_since_epoch().count());
 
@@ -215,7 +217,7 @@ int main() {
         
         startTime = currentTime;
 
-        drawables.clear();
+        std::vector<Drawable> drawables;
 
         std::ranges::for_each(galaxies, [&](Galaxy& galaxy) {
             galaxy.rotate(1.5 * speed);
